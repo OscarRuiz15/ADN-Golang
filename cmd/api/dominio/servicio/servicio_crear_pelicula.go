@@ -3,6 +3,7 @@ package servicio
 import (
 	"ADN_Golang/cmd/api/dominio/modelo"
 	"ADN_Golang/cmd/api/dominio/puerto"
+	"fmt"
 )
 
 type PuertoServicioCrearPelicula interface {
@@ -17,7 +18,8 @@ func (servicioCrearPelicula *ServicioCrearPelicula) Crear(pelicula *modelo.Pelic
 
 	err := servicioCrearPelicula.RepositorioPelicula.Crear(pelicula)
 	if err != nil {
-		//Error al crear pelicula
+		fmt.Println("Servicio crear -> Error al crear pelicula", err)
+		return err
 	}
 
 	return err

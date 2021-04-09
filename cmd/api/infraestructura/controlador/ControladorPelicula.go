@@ -34,7 +34,7 @@ func (controladorPelicula *ControladorPelicula) Crear(context *gin.Context) {
 		return
 	}
 
-	err := controladorPelicula.AplicacionCrearPelicula.Handler(&pelicula)
+	err := controladorPelicula.AplicacionCrearPelicula.Ejecutar(&pelicula)
 	if err != nil {
 		fmt.Println("Controlador Crear -> Error al crear", err)
 		return
@@ -45,7 +45,7 @@ func (controladorPelicula *ControladorPelicula) Crear(context *gin.Context) {
 
 func (controladorPelicula *ControladorPelicula) Obtener(context *gin.Context) {
 	id := obtenerIdPelicula(context.Param("id"))
-	pelicula, err := controladorPelicula.AplicacionObtenerPelicula.Handler(id)
+	pelicula, err := controladorPelicula.AplicacionObtenerPelicula.Ejecutar(id)
 	if err != nil {
 		fmt.Println("Controlador Obtener -> Error al obtener", err)
 		return
@@ -56,7 +56,7 @@ func (controladorPelicula *ControladorPelicula) Obtener(context *gin.Context) {
 
 func (controladorPelicula *ControladorPelicula) Listar(context *gin.Context) {
 
-	peliculas, err := controladorPelicula.AplicacionListaPelicular.Handler()
+	peliculas, err := controladorPelicula.AplicacionListaPelicular.Ejecutar()
 	if err != nil {
 		fmt.Println("Controlador Listar -> Error al listar", err)
 		return
@@ -67,7 +67,7 @@ func (controladorPelicula *ControladorPelicula) Listar(context *gin.Context) {
 
 func (controladorPelicula *ControladorPelicula) Eliminar(context *gin.Context) {
 	id := obtenerIdPelicula(context.Param("id"))
-	err := controladorPelicula.AplicacionEliminarPelicula.Handler(id)
+	err := controladorPelicula.AplicacionEliminarPelicula.Ejecutar(id)
 	if err != nil {
 		fmt.Println("Controlador Eliminar -> Error al eliminar", err)
 		return
@@ -84,7 +84,7 @@ func (controladorPelicula *ControladorPelicula) Actualizar(context *gin.Context)
 		return
 	}
 
-	err := controladorPelicula.AplicacionActualizarPelicula.Handler(id, pelicula)
+	err := controladorPelicula.AplicacionActualizarPelicula.Ejecutar(id, pelicula)
 	if err != nil {
 		fmt.Println("Controlador Actualizar -> Error al actualizar", err)
 		return

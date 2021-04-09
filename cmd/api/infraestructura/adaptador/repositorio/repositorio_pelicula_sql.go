@@ -4,14 +4,15 @@ import (
 	"ADN_Golang/cmd/api/dominio/modelo"
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 )
 
 const (
-	queryInsertarPelicula     = "INSERT INTO pelicula (nombre, director, escritor, pais, idioma, lanzamiento) VALUES (?,?,?,?,?,?)"
-	queryObtenerPeliculaPorId = "SELECT id, nombre, director, escritor, pais, idioma, lanzamiento FROM pelicula WHERE id = ?"
-	queryObtenerPeliculas     = "SELECT id, nombre, director, escritor, pais, idioma, lanzamiento FROM pelicula "
-	queryEliminarPeliculas    = "DELETE FROM pelicula WHERE id = ?"
-	queryActualizarPelicula   = "UPDATE pelicula SET nombre=?, director=?, escritor=?, pais=?, idioma=?, lanzamiento=? WHERE id=?;"
+	SQL_LISTAR_PELICULAS    = "listar_peliculas.sql"
+	SQL_CREAR_PELICULA      = "crear_pelicula.sql"
+	SQL_OBTENER_PELICULA    = "obtener_pelicula.sql"
+	SQL_ACTUALIZAR_PELICULA = "actualizar_pelicula.sql"
+	SQL_ELIMINAR_PELICULA   = "eliminar_pelicula.sql"
 )
 
 type RepositorioPeliculaSql struct {
@@ -19,7 +20,8 @@ type RepositorioPeliculaSql struct {
 }
 
 func (repositorioPelicula *RepositorioPeliculaSql) Crear(pelicula *modelo.Pelicula) error {
-	stmt, err := repositorioPelicula.Db.Prepare(queryInsertarPelicula)
+	query := leerArchivoSql(SQL_CREAR_PELICULA)
+	stmt, err := repositorioPelicula.Db.Prepare(query)
 	if err != nil {
 		fmt.Println("RepositorioSQL Crear -> Error al preparar instancia SQL", err)
 		return err
@@ -43,7 +45,8 @@ func (repositorioPelicula *RepositorioPeliculaSql) Crear(pelicula *modelo.Pelicu
 }
 
 func (repositorioPelicula *RepositorioPeliculaSql) Obtener(id int64) (modelo.Pelicula, error) {
-	stmt, err := repositorioPelicula.Db.Prepare(queryObtenerPeliculaPorId)
+	query := leerArchivoSql(SQL_OBTENER_PELICULA)
+	stmt, err := repositorioPelicula.Db.Prepare(query)
 	if err != nil {
 		fmt.Println("RepositorioSQL Obtener -> Error al preparar instancia SQL", err)
 		return modelo.Pelicula{}, err
@@ -63,7 +66,8 @@ func (repositorioPelicula *RepositorioPeliculaSql) Obtener(id int64) (modelo.Pel
 }
 
 func (repositorioPelicula *RepositorioPeliculaSql) Listar() ([]modelo.Pelicula, error) {
-	rows, err := repositorioPelicula.Db.Query(queryObtenerPeliculas)
+	query := leerArchivoSql(SQL_LISTAR_PELICULAS)
+	rows, err := repositorioPelicula.Db.Query(query)
 	if err != nil {
 		fmt.Println("RepositorioSQL Listar -> Error al preparar instancia SQL", err)
 		return nil, err
@@ -82,7 +86,7 @@ func (repositorioPelicula *RepositorioPeliculaSql) Listar() ([]modelo.Pelicula, 
 	}
 
 	if len(peliculas) == 0 {
-		fmt.Println("RepositorioSQL Listar -> No hay usuarios", err)
+		fmt.Println("RepositorioSQL Listar -> No retorna peliculas la consulta", err)
 		return nil, err
 	}
 
@@ -90,7 +94,8 @@ func (repositorioPelicula *RepositorioPeliculaSql) Listar() ([]modelo.Pelicula, 
 }
 
 func (repositorioPelicula *RepositorioPeliculaSql) Eliminar(id int64) error {
-	stmt, err := repositorioPelicula.Db.Prepare(queryEliminarPeliculas)
+	query := leerArchivoSql(SQL_ELIMINAR_PELICULA)
+	stmt, err := repositorioPelicula.Db.Prepare(query)
 	if err != nil {
 		fmt.Println("RepositorioSQL Eliminar -> Error al preparar instancia SQL", err)
 		return err
@@ -108,7 +113,8 @@ func (repositorioPelicula *RepositorioPeliculaSql) Eliminar(id int64) error {
 }
 
 func (repositorioPelicula *RepositorioPeliculaSql) Actualizar(id int64, pelicula modelo.Pelicula) error {
-	stmt, err := repositorioPelicula.Db.Prepare(queryActualizarPelicula)
+	query := leerArchivoSql(SQL_ACTUALIZAR_PELICULA)
+	stmt, err := repositorioPelicula.Db.Prepare(query)
 	if err != nil {
 		fmt.Println("RepositorioSQL Actualizar -> Error al preparar instancia SQL", err)
 		return err
@@ -123,4 +129,14 @@ func (repositorioPelicula *RepositorioPeliculaSql) Actualizar(id int64, pelicula
 	}
 
 	return nil
+}
+
+func leerArchivoSql(archivoSql string) string {
+	ruta := fmt.Sprintf("./cmd/api/infraestructura/resources/sql/%s", archivoSql)
+	file, err := ioutil.ReadFile(ruta)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	return string(file)
 }

@@ -18,8 +18,14 @@ func (servicioEliminarPelicula *ServicioEliminarPelicula) Eliminar(id int64) err
 	_, err := servicioEliminarPelicula.RepositorioPelicula.Obtener(id)
 	if err != nil {
 		fmt.Println("Servicio Eliminar Pelicula -> El registro a eliminar no existe", err)
+		return err
 	}
 
 	err = servicioEliminarPelicula.RepositorioPelicula.Eliminar(id)
+	if err != nil {
+		fmt.Println("Servicio Eliminar Pelicula -> Error al eliminar", err)
+		return err
+	}
+
 	return err
 }

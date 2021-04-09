@@ -23,5 +23,10 @@ func (servicioActualizarPelicula *ServicioActualizarPelicula) Actualizar(id int6
 	}
 
 	err = servicioActualizarPelicula.RepositorioPelicula.Actualizar(id, pelicula)
+	if err != nil {
+		fmt.Println("Servicio actualizar -> Error al actualizar pelicula", err)
+		return err
+	}
+
 	return err
 }
