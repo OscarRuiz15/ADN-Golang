@@ -1,6 +1,7 @@
 package app
 
 import (
+	"ADN_Golang/cmd/api/infraestructura/controlador/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"log"
@@ -14,6 +15,7 @@ func IniciarAplicacion() {
 		//Error al cargar archivo de ambiente
 	}
 
+	router.Use(middleware.ErrorHandler())
 	mapeoUrls()
 
 	if err := router.Run(":8080"); err != nil {

@@ -1,8 +1,10 @@
 package servicio
 
 import (
+	"ADN_Golang/cmd/api/dominio/exception"
 	"ADN_Golang/cmd/api/dominio/puerto"
-	"fmt"
+	"errors"
+	"log"
 )
 
 type PuertoServicioEliminarPelicula interface {
@@ -17,13 +19,15 @@ func (servicioEliminarPelicula *ServicioEliminarPelicula) Eliminar(id int64) err
 
 	_, err := servicioEliminarPelicula.RepositorioPelicula.Obtener(id)
 	if err != nil {
-		fmt.Println("Servicio Eliminar Pelicula -> El registro a eliminar no existe", err)
+		err = exception.DataNotFound{ErrMessage: "El registro a eliminar no existe"}
+		log.Println("Servicio Eliminar Pelicula -> El registro a eliminar no existe", err)
 		return err
 	}
 
 	err = servicioEliminarPelicula.RepositorioPelicula.Eliminar(id)
 	if err != nil {
-		fmt.Println("Servicio Eliminar Pelicula -> Error al eliminar", err)
+		err = errors.New("Servicio Eliminar Pelicula -> Error al eliminar")
+		log.Println("Servicio Eliminar Pelicula -> Error al eliminar", err)
 		return err
 	}
 

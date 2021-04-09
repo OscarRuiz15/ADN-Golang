@@ -2,7 +2,7 @@ package aplicacion
 
 import (
 	"ADN_Golang/cmd/api/dominio/servicio"
-	"fmt"
+	"log"
 )
 
 type AplicacionEliminarPelicula interface {
@@ -17,7 +17,8 @@ func (eliminarPelicula *EliminarPelicula) Ejecutar(id int64) error {
 
 	err := eliminarPelicula.ServicioEliminarPelicula.Eliminar(id)
 	if err != nil {
-		fmt.Println("Aplicacion eliminar -> Error", err)
+		log.Println("Aplicacion eliminar -> Error", err)
+		return err
 	}
 
 	return err

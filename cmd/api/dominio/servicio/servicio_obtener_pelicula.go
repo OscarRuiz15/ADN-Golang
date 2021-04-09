@@ -1,9 +1,10 @@
 package servicio
 
 import (
+	"ADN_Golang/cmd/api/dominio/exception"
 	"ADN_Golang/cmd/api/dominio/modelo"
 	"ADN_Golang/cmd/api/dominio/puerto"
-	"fmt"
+	"log"
 )
 
 type PuertoServicioObtenerPelicula interface {
@@ -18,7 +19,8 @@ func (servicioObtenerPelicula *ServicioObtenerPelicula) Obtener(id int64) (model
 
 	pelicula, err := servicioObtenerPelicula.RepositorioPelicula.Obtener(id)
 	if err != nil {
-		fmt.Println("Servicio Obtener Pelicula -> No existe la pelicula con el id", err)
+		err = exception.DataNotFound{ErrMessage: "No existe la pelicula con el id"}
+		log.Println("Servicio Obtener Pelicula -> No existe la pelicula con el id", err)
 		return pelicula, err
 	}
 

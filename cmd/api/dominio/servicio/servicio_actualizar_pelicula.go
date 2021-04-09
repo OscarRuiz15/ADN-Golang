@@ -1,9 +1,11 @@
 package servicio
 
 import (
+	"ADN_Golang/cmd/api/dominio/exception"
 	"ADN_Golang/cmd/api/dominio/modelo"
 	"ADN_Golang/cmd/api/dominio/puerto"
-	"fmt"
+	"github.com/pkg/errors"
+	"log"
 )
 
 type PuertoServicioActualizarPelicula interface {
@@ -18,13 +20,15 @@ func (servicioActualizarPelicula *ServicioActualizarPelicula) Actualizar(id int6
 
 	_, err := servicioActualizarPelicula.RepositorioPelicula.Obtener(id)
 	if err != nil {
-		fmt.Println("Servicio actualizar -> Error al buscar pelicula", err)
+		err = exception.DataNotFound{ErrMessage: "Error al buscar pelicula"}
+		log.Println("Servicio actualizar -> Error al buscar pelicula", err)
 		return err
 	}
 
 	err = servicioActualizarPelicula.RepositorioPelicula.Actualizar(id, pelicula)
 	if err != nil {
-		fmt.Println("Servicio actualizar -> Error al actualizar pelicula", err)
+		err = errors.New("Servicio actualizar -> Error al actualizar pelicula")
+		log.Println("Servicio actualizar -> Error al actualizar pelicula", err)
 		return err
 	}
 
