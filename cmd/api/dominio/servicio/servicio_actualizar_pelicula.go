@@ -25,6 +25,18 @@ func (servicioActualizarPelicula *ServicioActualizarPelicula) Actualizar(id int6
 		return err
 	}
 
+	err = pelicula.Validar()
+	if err != nil {
+		return err
+	}
+
+	idReg, existe := servicioActualizarPelicula.RepositorioPelicula.Existe(pelicula.Nombre)
+	if existe && id != idReg {
+		err = exception.DataDuplicity{ErrMessage: "La pelicula " + pelicula.Nombre + " ya está registrada"}
+		log.Println("Servicio crear -> La pelicula"+pelicula.Nombre+" ya está registrada", err)
+		return err
+	}
+
 	err = servicioActualizarPelicula.RepositorioPelicula.Actualizar(id, pelicula)
 	if err != nil {
 		err = errors.New("Servicio actualizar -> Error al actualizar pelicula")

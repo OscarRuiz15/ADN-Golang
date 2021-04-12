@@ -17,4 +17,7 @@ type RepositorioPelicula interface {
 
 	//Obtener todas las peliculas
 	Listar() ([]modelo.Pelicula, error)
+
+	//Validar existencia previa de pelicula por nombre
+	Existe(nombre string) (int64, bool)
 }

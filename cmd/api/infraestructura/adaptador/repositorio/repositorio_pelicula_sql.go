@@ -15,6 +15,7 @@ const (
 	SQL_OBTENER_PELICULA    = "obtener_pelicula.sql"
 	SQL_ACTUALIZAR_PELICULA = "actualizar_pelicula.sql"
 	SQL_ELIMINAR_PELICULA   = "eliminar_pelicula.sql"
+	SQL_EXISTE_PELICULA     = "existe_pelicula.sql"
 )
 
 type RepositorioPeliculaSql struct {
@@ -51,7 +52,7 @@ func (repositorioPelicula *RepositorioPeliculaSql) Obtener(id int64) (modelo.Pel
 	stmt, err := repositorioPelicula.Db.Prepare(query)
 	if err != nil {
 		log.Println("RepositorioSQL Obtener -> Error al preparar instancia SQL", err)
-		return modelo.Pelicula{}, errors.New("RepositorioSQL Eliminar -> Error al preparar instancia SQL")
+		return modelo.Pelicula{}, errors.New("RepositorioSQL Obtener -> Error al preparar instancia SQL")
 	}
 
 	defer stmt.Close()
@@ -131,6 +132,31 @@ func (repositorioPelicula *RepositorioPeliculaSql) Actualizar(id int64, pelicula
 	}
 
 	return nil
+}
+
+func (repositorioPelicula *RepositorioPeliculaSql) Existe(nombre string) (int64, bool) {
+	query := leerArchivoSql(SQL_EXISTE_PELICULA)
+	stmt, err := repositorioPelicula.Db.Prepare(query)
+	if err != nil {
+		log.Println("RepositorioSQL Existe -> Error al preparar instancia SQL", err)
+		return 0, false
+	}
+
+	defer stmt.Close()
+
+	var id int64
+	result := stmt.QueryRow("%" + nombre + "%")
+	err = result.Scan(&id)
+	if err != nil {
+		log.Println("RepositorioSQL Existe -> Error al ejecutar instancia SQL", err)
+		return 0, false
+	}
+
+	if id > 0 {
+		return id, true
+	}
+
+	return 0, false
 }
 
 func leerArchivoSql(archivoSql string) string {
