@@ -28,7 +28,7 @@ func (e apiErr) Code() string {
 }
 
 func (e apiErr) Error() string {
-	return fmt.Sprintf("Message: %s;Error Code: %s;Status: %d;Cause: %v", e.ErrorMessage, e.ErrorCode, e.ErrorStatus)
+	return fmt.Sprintf("Message: %s;Error Code: %s;Status: %d", e.ErrorMessage, e.ErrorCode, e.ErrorStatus)
 }
 
 func (e apiErr) Status() int {

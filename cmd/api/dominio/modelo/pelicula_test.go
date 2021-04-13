@@ -1,20 +1,15 @@
-package modelo
+package modelo_test
 
 import (
+	"ADN_Golang/cmd/api/dominio/modelo"
+	"ADN_Golang/cmd/test/builder"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestCrearModeloPeliculaExitoso(t *testing.T) {
 	// arrange
-	pelicula := Pelicula{
-		Nombre:      "Oscar",
-		Director:    "Alexander",
-		Escritor:    "Ruiz",
-		Pais:        "Colombia",
-		Idioma:      "Español",
-		Lanzamiento: 2021,
-	}
+	pelicula := builder.NewPeliculaBuilder().Build()
 
 	// act
 	err := pelicula.Validar()
@@ -25,102 +20,66 @@ func TestCrearModeloPeliculaExitoso(t *testing.T) {
 
 func TestCrearModeloPeliculaSinNombreError(t *testing.T) {
 	// arrange
-	pelicula := Pelicula{
-		Director:    "Alexander",
-		Escritor:    "Ruiz",
-		Pais:        "Colombia",
-		Idioma:      "Español",
-		Lanzamiento: 2021,
-	}
+	pelicula := builder.NewPeliculaBuilder().ConNombre("").Build()
 
 	// act
 	err := pelicula.Validar()
 
 	// assert
-	assert.Equal(t, err.Error(), EL_NOMBRE_ES_OBLIGATORIO)
+	assert.Equal(t, err.Error(), modelo.EL_NOMBRE_ES_OBLIGATORIO)
 }
 
 func TestCrearModeloPeliculaSinDirectorError(t *testing.T) {
 	// arrange
-	pelicula := Pelicula{
-		Nombre:      "Oscar",
-		Escritor:    "Ruiz",
-		Pais:        "Colombia",
-		Idioma:      "Español",
-		Lanzamiento: 2021,
-	}
+	pelicula := builder.NewPeliculaBuilder().ConDirector("").Build()
 
 	// act
 	err := pelicula.Validar()
 
 	// assert
-	assert.Equal(t, err.Error(), EL_DIRECTOR_ES_OBLIGATORIO)
+	assert.Equal(t, err.Error(), modelo.EL_DIRECTOR_ES_OBLIGATORIO)
 }
 
 func TestCrearModeloPeliculaSinEscritorError(t *testing.T) {
 	// arrange
-	pelicula := Pelicula{
-		Nombre:      "Oscar",
-		Director:    "Alexander",
-		Pais:        "Colombia",
-		Idioma:      "Español",
-		Lanzamiento: 2021,
-	}
+	pelicula := builder.NewPeliculaBuilder().ConEscritor("").Build()
 
 	// act
 	err := pelicula.Validar()
 
 	// assert
-	assert.Equal(t, err.Error(), EL_ESCRITOR_ES_OBLIGATORIO)
+	assert.Equal(t, err.Error(), modelo.EL_ESCRITOR_ES_OBLIGATORIO)
 }
 
 func TestCrearModeloPeliculaSinPaisError(t *testing.T) {
 	// arrange
-	pelicula := Pelicula{
-		Nombre:      "Oscar",
-		Director:    "Alexander",
-		Escritor:    "Ruiz",
-		Idioma:      "Español",
-		Lanzamiento: 2021,
-	}
+	pelicula := builder.NewPeliculaBuilder().ConPais("").Build()
 
 	// act
 	err := pelicula.Validar()
 
 	// assert
-	assert.Equal(t, err.Error(), EL_PAIS_ES_OBLIGATORIO)
+	assert.Equal(t, err.Error(), modelo.EL_PAIS_ES_OBLIGATORIO)
 }
 
 func TestCrearModeloPeliculaSinIdiomaError(t *testing.T) {
 	// arrange
-	pelicula := Pelicula{
-		Nombre:      "Oscar",
-		Director:    "Alexander",
-		Escritor:    "Ruiz",
-		Pais:        "Colombia",
-		Lanzamiento: 2021,
-	}
+	pelicula := builder.NewPeliculaBuilder().ConIdioma("").Build()
 
 	// act
 	err := pelicula.Validar()
 
 	// assert
-	assert.Equal(t, err.Error(), EL_IDIOMA_ES_OBLIGATORIO)
+	assert.Equal(t, err.Error(), modelo.EL_IDIOMA_ES_OBLIGATORIO)
 }
 
 func TestCrearModeloPeliculaSinLanzamientoError(t *testing.T) {
 	// arrange
-	pelicula := Pelicula{
-		Nombre:   "Oscar",
-		Director: "Alexander",
-		Escritor: "Ruiz",
-		Pais:     "Colombia",
-		Idioma:   "Español",
-	}
+	pelicula := builder.NewPeliculaBuilder().ConLanzamiento(0).Build()
 
 	// act
 	err := pelicula.Validar()
 
 	// assert
-	assert.Equal(t, err.Error(), EL_ANIO_ES_OBLIGATORIO)
+	assert.Equal(t, err.Error(), modelo.EL_ANIO_ES_OBLIGATORIO)
 }

@@ -19,8 +19,8 @@ func (servicioListarPeliculas *ServicioListarPeliculas) Listar() ([]modelo.Pelic
 
 	peliculas, err := servicioListarPeliculas.RepositorioPelicula.Listar()
 	if err != nil {
-		err = errors.New("Error al eliminar")
-		log.Println("Servicio Eliminar Pelicula -> Error al eliminar", err)
+		err = errors.New("Error al listar peliculas")
+		log.Println("Servicio Listar Peliculas -> Error al listar peliculas", err)
 		return nil, err
 	}
 
