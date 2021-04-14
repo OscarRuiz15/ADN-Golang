@@ -1,6 +1,9 @@
 package builder
 
-import "ADN_Golang/cmd/api/dominio/modelo"
+import (
+	"ADN_Golang/cmd/api/dominio/modelo"
+	"fmt"
+)
 
 type PeliculaBuilder struct {
 	Id          int64  `json:"id"`
@@ -69,4 +72,16 @@ func (peliculaBuilder *PeliculaBuilder) Build() modelo.Pelicula {
 		Idioma:      peliculaBuilder.Idioma,
 		Lanzamiento: peliculaBuilder.Lanzamiento,
 	}
+}
+
+func (peliculaBuilder *PeliculaBuilder) BuildString() string {
+	return fmt.Sprintf(
+		`{"nombre":"%s","director":"%s","escritor":"%s","pais":"%s","idioma":"%s","lanzamiento":%v}`,
+		peliculaBuilder.Nombre,
+		peliculaBuilder.Director,
+		peliculaBuilder.Escritor,
+		peliculaBuilder.Pais,
+		peliculaBuilder.Idioma,
+		peliculaBuilder.Lanzamiento,
+	)
 }

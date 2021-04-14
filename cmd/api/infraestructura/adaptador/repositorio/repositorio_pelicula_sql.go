@@ -2,78 +2,74 @@ package repositorio
 
 import (
 	"ADN_Golang/cmd/api/dominio/modelo"
+	"ADN_Golang/cmd/api/infraestructura/configuracion"
 	"database/sql"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 )
 
 const (
-	SQL_LISTAR_PELICULAS    = "listar_peliculas.sql"
-	SQL_CREAR_PELICULA      = "crear_pelicula.sql"
-	SQL_OBTENER_PELICULA    = "obtener_pelicula.sql"
-	SQL_ACTUALIZAR_PELICULA = "actualizar_pelicula.sql"
-	SQL_ELIMINAR_PELICULA   = "eliminar_pelicula.sql"
-	SQL_EXISTE_PELICULA     = "existe_pelicula.sql"
+	QUERY_CREAR_PELICULA      = "INSERT INTO pelicula (nombre, director, escritor, pais, idioma, lanzamiento) VALUES (?, ?, ?, ?, ?, ?)"
+	QUERY_LISTAR_PELICULAS    = "SELECT id, nombre, director, escritor, pais, idioma, lanzamiento FROM pelicula"
+	QUERY_EXISTE_PELICULA     = "SELECT id FROM pelicula WHERE nombre LIKE ?"
+	QUERY_ACTUALIZAR_PELICULA = "UPDATE pelicula SET nombre=?, director=?, escritor=?, pais=?, idioma=?, lanzamiento=? WHERE id = ?;"
+	QUERY_OBTENER_PELICULA    = "SELECT id, nombre, director, escritor, pais, idioma, lanzamiento FROM pelicula WHERE id = ?"
+	QUERY_ELIMINAR_PELICULA   = "DELETE FROM pelicula WHERE id = ?"
 )
 
 type RepositorioPeliculaSql struct {
 	Db *sql.DB
 }
 
-func (repositorioPelicula *RepositorioPeliculaSql) Crear(pelicula *modelo.Pelicula) error {
-	query := leerArchivoSql(SQL_CREAR_PELICULA)
-	stmt, err := repositorioPelicula.Db.Prepare(query)
+// Begin & Exec
+func (repositorioPelicula *RepositorioPeliculaSql) Crear(pelicula *modelo.Pelicula) (err error) {
+	var tx *sql.Tx
+
+	defer func() {
+		configuracion.CloseConnections(err, tx, nil, nil)
+	}()
+
+	tx, err = repositorioPelicula.Db.Begin()
 	if err != nil {
-		log.Println("RepositorioSQL Crear -> Error al preparar instancia SQL", err)
-		return errors.New("RepositorioSQL Crear -> Error al preparar instancia SQL")
+		errMsg := fmt.Sprintf("RepositorioSQL Crear -> Ocurrió un error al guardar la pelicula con nombre %s", pelicula.Nombre)
+		log.Println(errMsg, err)
+		return errors.New(errMsg)
 	}
 
-	defer stmt.Close()
-
-	result, err := stmt.Exec(pelicula.Nombre, pelicula.Director, pelicula.Escritor, pelicula.Pais, pelicula.Idioma, pelicula.Lanzamiento)
+	result, err := repositorioPelicula.Db.Exec(QUERY_CREAR_PELICULA,
+		pelicula.Nombre,
+		pelicula.Director,
+		pelicula.Escritor,
+		pelicula.Pais,
+		pelicula.Idioma,
+		pelicula.Lanzamiento)
 	if err != nil {
-		log.Println("RepositorioSQL Crear -> Error al ejecutar SQL", err)
-		return errors.New("RepositorioSQL Crear -> Error al ejecutar SQL")
+		log.Println("RepositorioSQL Crear -> El tipo de parámetro no es correcto", err)
+		return errors.New("RepositorioSQL Crear -> El tipo de parámetro no es correcto")
 	}
 
-	pelicula.Id, err = result.LastInsertId()
-	if err != nil {
-		log.Println("RepositorioSQL Crear -> Error al obtener ultimo id", err)
-		return errors.New("RepositorioSQL Crear -> Error al obtener ultimo id")
-	}
-
-	return nil
+	pelicula.Id, _ = result.LastInsertId()
+	return err
 }
 
-func (repositorioPelicula *RepositorioPeliculaSql) Obtener(id int64) (modelo.Pelicula, error) {
-	query := leerArchivoSql(SQL_OBTENER_PELICULA)
-	stmt, err := repositorioPelicula.Db.Prepare(query)
-	if err != nil {
-		log.Println("RepositorioSQL Obtener -> Error al preparar instancia SQL", err)
-		return modelo.Pelicula{}, errors.New("RepositorioSQL Obtener -> Error al preparar instancia SQL")
-	}
-
-	defer stmt.Close()
-
-	var pelicula modelo.Pelicula
-	result := stmt.QueryRow(id)
-	err = result.Scan(&pelicula.Id, &pelicula.Nombre, &pelicula.Director, &pelicula.Escritor, &pelicula.Pais, &pelicula.Idioma, &pelicula.Lanzamiento)
+// QueryRow
+func (repositorioPelicula *RepositorioPeliculaSql) Obtener(id int64) (pelicula modelo.Pelicula, err error) {
+	row := repositorioPelicula.Db.QueryRow(QUERY_OBTENER_PELICULA, id)
+	err = row.Scan(&pelicula.Id, &pelicula.Nombre, &pelicula.Director, &pelicula.Escritor, &pelicula.Pais, &pelicula.Idioma, &pelicula.Lanzamiento)
 	if err != nil {
 		log.Println("RepositorioSQL Obtener -> Error al ejecutar instancia SQL", err)
 		return modelo.Pelicula{}, errors.New("RepositorioSQL Obtener -> Error al ejecutar instancia SQL")
 	}
-
-	return pelicula, nil
+	return pelicula, err
 }
 
+// Query
 func (repositorioPelicula *RepositorioPeliculaSql) Listar() ([]modelo.Pelicula, error) {
-	query := leerArchivoSql(SQL_LISTAR_PELICULAS)
-	rows, err := repositorioPelicula.Db.Query(query)
+	rows, err := repositorioPelicula.Db.Query(QUERY_LISTAR_PELICULAS)
 	if err != nil {
-		log.Println("RepositorioSQL Listar -> Error al preparar instancia SQL", err)
-		return nil, errors.New("RepositorioSQL Listar -> Error al preparar instancia SQL")
+		log.Println("RepositorioSQL Listar -> Error de sintaxis de consulta", err)
+		return nil, errors.New("RepositorioSQL Listar -> Error de sintaxis de consulta")
 	}
 
 	defer rows.Close()
@@ -81,9 +77,17 @@ func (repositorioPelicula *RepositorioPeliculaSql) Listar() ([]modelo.Pelicula, 
 	peliculas := make([]modelo.Pelicula, 0)
 	for rows.Next() {
 		var pelicula modelo.Pelicula
-		if err := rows.Scan(&pelicula.Id, &pelicula.Nombre, &pelicula.Director, &pelicula.Escritor, &pelicula.Pais, &pelicula.Idioma, &pelicula.Lanzamiento); err != nil {
-			log.Println("RepositorioSQL Listar -> Error al recorrer filas", err)
-			return nil, errors.New("RepositorioSQL Listar -> Error al recorrer filas")
+		if err := rows.Scan(
+			&pelicula.Id,
+			&pelicula.Nombre,
+			&pelicula.Director,
+			&pelicula.Escritor,
+			&pelicula.Pais,
+			&pelicula.Idioma,
+			&pelicula.Lanzamiento,
+		); err != nil {
+			log.Println("RepositorioSQL Listar -> Error al escanear la información", err)
+			return nil, errors.New("RepositorioSQL Listar -> error al escanear la información")
 		}
 		peliculas = append(peliculas, pelicula)
 	}
@@ -96,75 +100,72 @@ func (repositorioPelicula *RepositorioPeliculaSql) Listar() ([]modelo.Pelicula, 
 	return peliculas, nil
 }
 
-func (repositorioPelicula *RepositorioPeliculaSql) Eliminar(id int64) error {
-	query := leerArchivoSql(SQL_ELIMINAR_PELICULA)
-	stmt, err := repositorioPelicula.Db.Prepare(query)
+// Begin & Exec
+func (repositorioPelicula *RepositorioPeliculaSql) Eliminar(id int64) (err error) {
+	var tx *sql.Tx
+
+	defer func() {
+		configuracion.CloseConnections(err, tx, nil, nil)
+	}()
+
+	tx, err = repositorioPelicula.Db.Begin()
 	if err != nil {
-		log.Println("RepositorioSQL Eliminar -> Error al preparar instancia SQL", err)
-		return errors.New("RepositorioSQL Eliminar -> Error al preparar instancia SQL")
+		errMsg := fmt.Sprintf("RepositorioSQL Eliminar -> Ocurrió un error al eliminar la pelicula con id %v", id)
+		log.Println(errMsg, err)
+		return errors.New(errMsg)
 	}
 
-	defer stmt.Close()
-
-	_, err = stmt.Exec(id)
+	_, err = repositorioPelicula.Db.Exec(QUERY_ELIMINAR_PELICULA, id)
 	if err != nil {
-		log.Println("RepositorioSQL Eliminar -> Error al ejecutar SQL", err)
-		return errors.New("RepositorioSQL Eliminar -> Error al ejecutar SQL")
+		log.Println("RepositorioSQL Eliminar -> El tipo de parámetro no es correcto", err)
+		return errors.New("RepositorioSQL Eliminar -> El tipo de parámetro no es correcto")
 	}
 
-	return nil
+	return err
 }
 
-func (repositorioPelicula *RepositorioPeliculaSql) Actualizar(id int64, pelicula modelo.Pelicula) error {
-	query := leerArchivoSql(SQL_ACTUALIZAR_PELICULA)
-	stmt, err := repositorioPelicula.Db.Prepare(query)
+// Begin & Exec
+func (repositorioPelicula *RepositorioPeliculaSql) Actualizar(id int64, pelicula modelo.Pelicula) (err error) {
+	var tx *sql.Tx
+
+	defer func() {
+		configuracion.CloseConnections(err, tx, nil, nil)
+	}()
+
+	tx, err = repositorioPelicula.Db.Begin()
 	if err != nil {
-		log.Println("RepositorioSQL Actualizar -> Error al preparar instancia SQL", err)
-		return errors.New("RepositorioSQL Actualizar -> Error al preparar instancia SQL")
+		errMsg := fmt.Sprintf("RepositorioSQL Actualizar -> Ocurrió un error al actualizar la pelicula con id %v", id)
+		log.Println(errMsg, err)
+		return errors.New(errMsg)
 	}
 
-	defer stmt.Close()
-
-	_, err = stmt.Exec(pelicula.Nombre, pelicula.Director, pelicula.Escritor, pelicula.Pais, pelicula.Idioma, pelicula.Lanzamiento, id)
+	_, err = repositorioPelicula.Db.Exec(QUERY_ACTUALIZAR_PELICULA,
+		pelicula.Nombre,
+		pelicula.Director,
+		pelicula.Escritor,
+		pelicula.Pais,
+		pelicula.Idioma,
+		pelicula.Lanzamiento,
+		id)
 	if err != nil {
-		log.Println("RepositorioSQL Actualizar -> Error al ejecutar SQL", err)
-		return errors.New("RepositorioSQL Actualizar -> Error al ejecutar SQL")
+		log.Println("RepositorioSQL Actualizar -> El tipo de parámetro no es correcto", err)
+		return errors.New("RepositorioSQL Actualizar -> El tipo de parámetro no es correcto")
 	}
 
-	return nil
+	return err
 }
 
+// QueryRow
 func (repositorioPelicula *RepositorioPeliculaSql) Existe(nombre string) (int64, bool) {
-	query := leerArchivoSql(SQL_EXISTE_PELICULA)
-	stmt, err := repositorioPelicula.Db.Prepare(query)
-	if err != nil {
-		log.Println("RepositorioSQL Existe -> Error al preparar instancia SQL", err)
-		return 0, false
-	}
-
-	defer stmt.Close()
-
+	row := repositorioPelicula.Db.QueryRow(QUERY_EXISTE_PELICULA, "%"+nombre+"%")
 	var id int64
-	result := stmt.QueryRow("%" + nombre + "%")
-	err = result.Scan(&id)
+	err := row.Scan(&id)
 	if err != nil {
 		log.Println("RepositorioSQL Existe -> Error al ejecutar instancia SQL", err)
 		return 0, false
 	}
-
 	if id > 0 {
 		return id, true
 	}
-
 	return 0, false
-}
-
-func leerArchivoSql(archivoSql string) string {
-	ruta := fmt.Sprintf("./cmd/api/infraestructura/resources/sql/%s", archivoSql)
-	file, err := ioutil.ReadFile(ruta)
-	if err != nil {
-		log.Println(err.Error())
-	}
-
-	return string(file)
 }
