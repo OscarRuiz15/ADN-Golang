@@ -3,6 +3,7 @@ package controlador
 import (
 	"ADN_Golang/cmd/api/aplicacion"
 	"ADN_Golang/cmd/api/dominio/modelo"
+	"ADN_Golang/cmd/api/infraestructura/exception"
 	"ADN_Golang/cmd/api/infraestructura/marshaller"
 	apierrors "ADN_Golang/pkg/apierror"
 	"github.com/gin-gonic/gin"
@@ -19,22 +20,21 @@ type ControladorPelicula struct {
 	AplicacionActualizarPelicula aplicacion.AplicacionActualizarPelicula
 }
 
-func obtenerIdPelicula(parametro string, context *gin.Context) int64 {
+func obtenerIdPelicula(parametro string) (int64, error) {
 	id, err := strconv.ParseInt(parametro, 10, 64)
 	if err != nil {
 		log.Println("Id -> El id debe ser un número", err)
-		idErr := apierrors.NewApiError("Id Invalido", err.Error(), 400)
-		context.JSON(idErr.Status(), idErr)
-		return 0
+		err = exception.InternalServerError{ErrMessage: "El id debe ser un número"}
+		return 0, err
 	}
-	return id
+	return id, nil
 }
 
 func (controladorPelicula *ControladorPelicula) Crear(context *gin.Context) {
 	var pelicula modelo.Pelicula
 	if err := context.ShouldBindJSON(&pelicula); err != nil {
 		log.Println("Controlador Crear -> Error al parsear", err)
-		restErr := apierrors.NewApiError("JSON Invalido", err.Error(), 400)
+		restErr := apierrors.NewApiError("JSON Invalido", err.Error(), 422)
 		context.JSON(restErr.Status(), restErr)
 		return
 	}
@@ -50,7 +50,12 @@ func (controladorPelicula *ControladorPelicula) Crear(context *gin.Context) {
 }
 
 func (controladorPelicula *ControladorPelicula) Obtener(context *gin.Context) {
-	id := obtenerIdPelicula(context.Param("id"), context)
+	id, err := obtenerIdPelicula(context.Param("id"))
+	if err != nil {
+		abort(context, err)
+		return
+	}
+
 	pelicula, err := controladorPelicula.AplicacionObtenerPelicula.Ejecutar(id)
 	if err != nil {
 		log.Println("Controlador Obtener -> Error al obtener", err)
@@ -75,8 +80,13 @@ func (controladorPelicula *ControladorPelicula) Listar(context *gin.Context) {
 }
 
 func (controladorPelicula *ControladorPelicula) Eliminar(context *gin.Context) {
-	id := obtenerIdPelicula(context.Param("id"), context)
-	err := controladorPelicula.AplicacionEliminarPelicula.Ejecutar(id)
+	id, err := obtenerIdPelicula(context.Param("id"))
+	if err != nil {
+		abort(context, err)
+		return
+	}
+
+	err = controladorPelicula.AplicacionEliminarPelicula.Ejecutar(id)
 	if err != nil {
 		log.Println("Controlador Eliminar -> Error al eliminar", err)
 		abort(context, err)
@@ -87,16 +97,21 @@ func (controladorPelicula *ControladorPelicula) Eliminar(context *gin.Context) {
 }
 
 func (controladorPelicula *ControladorPelicula) Actualizar(context *gin.Context) {
-	id := obtenerIdPelicula(context.Param("id"), context)
+	id, err := obtenerIdPelicula(context.Param("id"))
+	if err != nil {
+		abort(context, err)
+		return
+	}
+
 	var pelicula modelo.Pelicula
-	if err := context.ShouldBindJSON(&pelicula); err != nil {
+	if err = context.ShouldBindJSON(&pelicula); err != nil {
 		log.Println("Controlador Actualizar -> Error al parsear", err)
-		restErr := apierrors.NewApiError("JSON Invalido", err.Error(), 400)
+		restErr := apierrors.NewApiError("JSON Invalido", err.Error(), 422)
 		context.JSON(restErr.Status(), restErr)
 		return
 	}
 
-	err := controladorPelicula.AplicacionActualizarPelicula.Ejecutar(id, pelicula)
+	err = controladorPelicula.AplicacionActualizarPelicula.Ejecutar(id, pelicula)
 	if err != nil {
 		log.Println("Controlador Actualizar -> Error al actualizar", err)
 		abort(context, err)

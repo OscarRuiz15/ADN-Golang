@@ -49,9 +49,9 @@ func GetDatabaseInstance() *sql.DB {
 		panic(err)
 	}
 
-	if environment == "test" {
-		_ = refreshPeliculaTable()
-	}
+	//if environment == "test" {
+	//	_ = refreshPeliculaTable()
+	//}
 	return db
 }
 

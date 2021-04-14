@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"ADN_Golang/cmd/api/dominio/exception"
+	infraestructura "ADN_Golang/cmd/api/infraestructura/exception"
 	"ADN_Golang/pkg/apierror"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -33,6 +34,11 @@ func ErrorHandler() gin.HandlerFunc {
 
 		if _, ok := cause.(exception.DataRequired); ok {
 			throwException(c, http.StatusBadRequest, err.Err)
+			return
+		}
+
+		if _, ok := cause.(infraestructura.InternalServerErrorPort); ok {
+			throwException(c, http.StatusInternalServerError, err.Err)
 			return
 		}
 
