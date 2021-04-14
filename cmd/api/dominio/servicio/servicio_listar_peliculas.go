@@ -3,8 +3,8 @@ package servicio
 import (
 	"ADN_Golang/cmd/api/dominio/modelo"
 	"ADN_Golang/cmd/api/dominio/puerto"
+	"fmt"
 	"github.com/pkg/errors"
-	"log"
 )
 
 type PuertoServicioListarPeliculas interface {
@@ -19,8 +19,8 @@ func (servicioListarPeliculas *ServicioListarPeliculas) Listar() ([]modelo.Pelic
 
 	peliculas, err := servicioListarPeliculas.RepositorioPelicula.Listar()
 	if err != nil {
-		err = errors.New("Error al listar peliculas")
-		log.Println("Servicio Listar Peliculas -> Error al listar peliculas", err)
+		errMsg := fmt.Sprintf("Servicio listar -> Error al listar peliculas: %s", err)
+		err = errors.New(errMsg)
 		return nil, err
 	}
 

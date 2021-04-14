@@ -4,8 +4,8 @@ import (
 	"ADN_Golang/cmd/api/dominio/exception"
 	"ADN_Golang/cmd/api/dominio/modelo"
 	"ADN_Golang/cmd/api/dominio/puerto"
+	"fmt"
 	"github.com/pkg/errors"
-	"log"
 )
 
 type PuertoServicioActualizarPelicula interface {
@@ -20,8 +20,8 @@ func (servicioActualizarPelicula *ServicioActualizarPelicula) Actualizar(id int6
 
 	_, err := servicioActualizarPelicula.RepositorioPelicula.Obtener(id)
 	if err != nil {
-		err = exception.DataNotFound{ErrMessage: "Error al buscar pelicula"}
-		log.Println("Servicio actualizar -> Error al buscar pelicula", err)
+		errMsg := fmt.Sprintf("No existe la pelicula a actualizar con el id %v", id)
+		err = exception.DataNotFound{ErrMessage: errMsg}
 		return err
 	}
 
@@ -32,15 +32,15 @@ func (servicioActualizarPelicula *ServicioActualizarPelicula) Actualizar(id int6
 
 	idReg, existe := servicioActualizarPelicula.RepositorioPelicula.Existe(pelicula.Nombre)
 	if existe && id != idReg {
-		err = exception.DataDuplicity{ErrMessage: "La pelicula " + pelicula.Nombre + " ya está registrada"}
-		log.Println("Servicio crear -> La pelicula"+pelicula.Nombre+" ya está registrada", err)
+		errMsg := fmt.Sprintf("La pelicula %s ya está registrada", pelicula.Nombre)
+		err = exception.DataDuplicity{ErrMessage: errMsg}
 		return err
 	}
 
 	err = servicioActualizarPelicula.RepositorioPelicula.Actualizar(id, pelicula)
 	if err != nil {
-		err = errors.New("Servicio actualizar -> Error al actualizar pelicula")
-		log.Println("Servicio actualizar -> Error al actualizar pelicula", err)
+		errMsg := fmt.Sprintf("Servicio actualizar -> Error al actualizar pelicula: %s", err)
+		err = errors.New(errMsg)
 		return err
 	}
 
