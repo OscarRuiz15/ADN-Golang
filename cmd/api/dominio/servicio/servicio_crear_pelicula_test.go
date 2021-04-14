@@ -52,7 +52,7 @@ func TestEnviarPeliculaARepositorioRetornaError(t *testing.T) {
 	// arrange
 	var id int64 = 0
 	pelicula := builder.NewPeliculaBuilder().Build()
-	errorEsperado := errors.New("Error al crear pelicula")
+	errorEsperado := errors.New(servicio.ErrorCrearPelicula)
 
 	repositorioPelicula := new(mock.RepositorioPeliculaMock)
 	repositorioPelicula.On("Existe", pelicula.Nombre).Return(id, false)

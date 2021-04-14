@@ -39,7 +39,7 @@ func TestListarPeliculasExitoso(t *testing.T) {
 func TestRepositorioListarPeliculasRetornaError(t *testing.T) {
 	// arrange
 	peliculas := make([]modelo.Pelicula, 0)
-	errorEsperado := errors.New("Error al listar peliculas")
+	errorEsperado := errors.New(servicio.ErrorListarPeliculas)
 
 	repositorioPelicula := new(mock.RepositorioPeliculaMock)
 	repositorioPelicula.On("Listar").Return(peliculas, errorEsperado)

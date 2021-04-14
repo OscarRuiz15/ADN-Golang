@@ -5,6 +5,7 @@ import (
 	"ADN_Golang/cmd/api/dominio/servicio"
 	"ADN_Golang/cmd/test/builder"
 	"ADN_Golang/cmd/test/mock"
+	"fmt"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -32,7 +33,8 @@ func TestEliminarPeliculaExitoso(t *testing.T) {
 func TestEliminarPeliculaQueNoExisteRetornaError(t *testing.T) {
 	// arrange
 	var id int64 = 1
-	errorEsperado := errors.New("El registro a eliminar no existe")
+	errMsg := fmt.Sprintf("No existe la pelicula a eliminar con el id %v", id)
+	errorEsperado := errors.New(errMsg)
 
 	repositorioPelicula := new(mock.RepositorioPeliculaMock)
 	repositorioPelicula.On("Obtener", id).Return(modelo.Pelicula{}, errorEsperado)
@@ -51,7 +53,7 @@ func TestEliminarPeliculaQueNoExisteRetornaError(t *testing.T) {
 func TestEnviarIdAEliminarARepositorioRetornaError(t *testing.T) {
 	// arrange
 	pelicula := builder.NewPeliculaBuilder().Build()
-	errorEsperado := errors.New("Servicio Eliminar Pelicula -> Error al eliminar")
+	errorEsperado := errors.New(servicio.ErrorEliminarPelicula)
 
 	repositorioPelicula := new(mock.RepositorioPeliculaMock)
 	repositorioPelicula.On("Obtener", pelicula.Id).Return(pelicula, nil)

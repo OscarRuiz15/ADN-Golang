@@ -6,6 +6,7 @@ import (
 	"ADN_Golang/cmd/api/dominio/servicio"
 	"ADN_Golang/cmd/test/builder"
 	"ADN_Golang/cmd/test/mock"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -38,7 +39,8 @@ func TestObtenerPeliculaExitoso(t *testing.T) {
 func TestEnviarIdDePeliculaAObtenerNoExistente(t *testing.T) {
 	// arrange
 	var id int64 = 1
-	errorEsperado := exception.DataNotFound{ErrMessage: "No existe la pelicula con el id"}
+	errMsg := fmt.Sprintf("No existe la pelicula con el id %v", id)
+	errorEsperado := exception.DataNotFound{ErrMessage: errMsg}
 
 	repositorioPelicula := new(mock.RepositorioPeliculaMock)
 	repositorioPelicula.On("Obtener", id).Return(modelo.Pelicula{}, errorEsperado)

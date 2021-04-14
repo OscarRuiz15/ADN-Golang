@@ -8,6 +8,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+const ErrorActualizarPelicula = "Servicio actualizar -> Error al actualizar pelicula desde el repositorio."
+
 type PuertoServicioActualizarPelicula interface {
 	Actualizar(id int64, pelicula modelo.Pelicula) error
 }
@@ -39,8 +41,7 @@ func (servicioActualizarPelicula *ServicioActualizarPelicula) Actualizar(id int6
 
 	err = servicioActualizarPelicula.RepositorioPelicula.Actualizar(id, pelicula)
 	if err != nil {
-		errMsg := fmt.Sprintf("Servicio actualizar -> Error al actualizar pelicula: %s", err)
-		err = errors.New(errMsg)
+		err = errors.New(ErrorActualizarPelicula)
 		return err
 	}
 

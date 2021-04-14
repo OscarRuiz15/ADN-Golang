@@ -6,6 +6,8 @@ import (
 	"ADN_Golang/cmd/api/dominio/servicio"
 	"ADN_Golang/cmd/test/builder"
 	"ADN_Golang/cmd/test/mock"
+	"fmt"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -35,7 +37,8 @@ func TestPeliculaAActualizarNoExisteRetornaError(t *testing.T) {
 	// arrange
 	var id int64 = 99
 	pelicula := builder.NewPeliculaBuilder().Build()
-	errorEsperado := exception.DataNotFound{ErrMessage: "Error al buscar pelicula"}
+	errMsg := fmt.Sprintf("No existe la pelicula a actualizar con el id %v", id)
+	errorEsperado := exception.DataNotFound{ErrMessage: errMsg}
 
 	repositorioPelicula := new(mock.RepositorioPeliculaMock)
 	repositorioPelicula.On("Obtener", id).Return(modelo.Pelicula{}, errorEsperado)
@@ -76,7 +79,7 @@ func TestActualizarPeliculaRetornaErrorRepositorio(t *testing.T) {
 	// arrange
 	var id int64 = 0
 	pelicula := builder.NewPeliculaBuilder().Build()
-	errorEsperado := exception.DataNotFound{ErrMessage: "Servicio actualizar -> Error al actualizar pelicula"}
+	errorEsperado := errors.New(servicio.ErrorActualizarPelicula)
 
 	repositorioPelicula := new(mock.RepositorioPeliculaMock)
 	repositorioPelicula.On("Obtener", pelicula.Id).Return(pelicula, nil)

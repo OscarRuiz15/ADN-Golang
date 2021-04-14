@@ -8,6 +8,8 @@ import (
 	"fmt"
 )
 
+const ErrorCrearPelicula = "Servicio crear -> Error al crear pelicula desde el repositorio."
+
 type PuertoServicioCrearPelicula interface {
 	Crear(pelicula *modelo.Pelicula) error
 }
@@ -31,8 +33,7 @@ func (servicioCrearPelicula *ServicioCrearPelicula) Crear(pelicula *modelo.Pelic
 
 	err = servicioCrearPelicula.RepositorioPelicula.Crear(pelicula)
 	if err != nil {
-		errMsg := fmt.Sprintf("Servicio crear -> Error al crear pelicula: %s", err)
-		err = errors.New(errMsg)
+		err = errors.New(ErrorCrearPelicula)
 		return err
 	}
 

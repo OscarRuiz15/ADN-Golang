@@ -7,6 +7,8 @@ import (
 	"fmt"
 )
 
+const ErrorEliminarPelicula = "Servicio eliminar -> Error al eliminar pelicula desde el repositorio."
+
 type PuertoServicioEliminarPelicula interface {
 	Eliminar(id int64) error
 }
@@ -26,8 +28,7 @@ func (servicioEliminarPelicula *ServicioEliminarPelicula) Eliminar(id int64) err
 
 	err = servicioEliminarPelicula.RepositorioPelicula.Eliminar(id)
 	if err != nil {
-		errMsg := fmt.Sprintf("Servicio eliminar -> Error al eliminar pelicula: %s", err)
-		err = errors.New(errMsg)
+		err = errors.New(ErrorEliminarPelicula)
 		return err
 	}
 
