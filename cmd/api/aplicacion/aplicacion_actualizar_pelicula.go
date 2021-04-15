@@ -3,7 +3,6 @@ package aplicacion
 import (
 	"ADN_Golang/cmd/api/dominio/modelo"
 	"ADN_Golang/cmd/api/dominio/servicio"
-	"log"
 )
 
 type AplicacionActualizarPelicula interface {
@@ -16,11 +15,5 @@ type ActualizarPelicula struct {
 
 func (actualizarPelicula *ActualizarPelicula) Ejecutar(id int64, pelicula modelo.Pelicula) error {
 
-	err := actualizarPelicula.ServicioActualizarPelicula.Actualizar(id, pelicula)
-	if err != nil {
-		log.Println("Aplicacion actualizar -> Error", err)
-		return err
-	}
-
-	return err
+	return actualizarPelicula.ServicioActualizarPelicula.Actualizar(id, pelicula)
 }

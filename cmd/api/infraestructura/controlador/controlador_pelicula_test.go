@@ -2,6 +2,7 @@ package controlador_test
 
 import (
 	"ADN_Golang/cmd/api/dominio/modelo"
+	"ADN_Golang/cmd/api/infraestructura/configuracion"
 	"ADN_Golang/cmd/api/infraestructura/contenedor"
 	"ADN_Golang/cmd/test/builder"
 	"bytes"
@@ -32,6 +33,9 @@ func TestMain(m *testing.M) {
 
 func TestCrear(t *testing.T) {
 	gin.SetMode(gin.TestMode)
+
+	configuracion.GetDatabaseInstance()
+	_ = configuracion.RefreshPeliculaTable()
 
 	samples := []struct {
 		inputJSON   string
@@ -101,12 +105,10 @@ func TestCrear(t *testing.T) {
 
 func TestObtener(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	//
-	//r := gin.Default()
-	//r.POST(urlPeliculas, contenedor.GetControladorPelicula().Crear)
-	//req, _ := http.NewRequest(http.MethodPost, urlPeliculas, bytes.NewBufferString(builder.NewPeliculaBuilder().BuildString()))
-	//rr := httptest.NewRecorder()
-	//r.ServeHTTP(rr, req)
+
+	configuracion.GetDatabaseInstance()
+	_ = configuracion.RefreshPeliculaTable()
+	pelicula, _ := configuracion.SendOnePelicula()
 
 	samples := []struct {
 		id          string
@@ -120,14 +122,14 @@ func TestObtener(t *testing.T) {
 		errMessage  string
 	}{
 		{
-			id:          "1",
+			id:          strconv.Itoa(int(pelicula.Id)),
 			statusCode:  200,
-			nombre:      "Oscar",
-			director:    "Alexander",
-			escritor:    "Ruiz",
-			pais:        "Colombia",
-			idioma:      "Español",
-			lanzamiento: 2021,
+			nombre:      pelicula.Nombre,
+			director:    pelicula.Director,
+			escritor:    pelicula.Escritor,
+			pais:        pelicula.Pais,
+			idioma:      pelicula.Idioma,
+			lanzamiento: pelicula.Lanzamiento,
 			errMessage:  "",
 		},
 	}
@@ -164,12 +166,10 @@ func TestObtener(t *testing.T) {
 
 func TestActualizar(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	//
-	//r := gin.Default()
-	//r.POST(urlPeliculas, contenedor.GetControladorPelicula().Crear)
-	//req, _ := http.NewRequest(http.MethodPost, urlPeliculas, bytes.NewBufferString(builder.NewPeliculaBuilder().BuildString()))
-	//rr := httptest.NewRecorder()
-	//r.ServeHTTP(rr, req)
+
+	configuracion.GetDatabaseInstance()
+	_ = configuracion.RefreshPeliculaTable()
+	pelicula, _ := configuracion.SendOnePelicula()
 
 	samples := []struct {
 		id         string
@@ -179,20 +179,20 @@ func TestActualizar(t *testing.T) {
 		errMessage string
 	}{
 		{
-			id:         strconv.Itoa(1),
-			inputJSON:  builder.NewPeliculaBuilder().ConNombre("Nombre update").ConDirector("Director Update").ConIdioma("Idioma update").BuildString(),
+			id:         strconv.Itoa(int(pelicula.Id)),
+			inputJSON:  builder.NewPeliculaBuilder().ConNombre("Nombre update").ConDirector("Director update").ConIdioma("Idioma update").BuildString(),
 			statusCode: 200,
 			status:     "ok",
 			errMessage: "",
 		},
 		{
-			id: strconv.Itoa(1),
+			id: strconv.Itoa(int(pelicula.Id)),
 			inputJSON: `{
-							"nombre": "COVID",
-							"director": "Alfonso",
-							"escritor": "Yo",
-							"pais": "Colombia",
-							"idioma": "Ingles",
+							"nombre": "Nombre update",
+							"director": "Director update",
+							"escritor": "Escritor update",
+							"pais": "Pais update",
+							"idioma": "Idioma update",
 							"lanzamiento": "2018"
 						}`,
 			statusCode: 422,
@@ -229,6 +229,10 @@ func TestActualizar(t *testing.T) {
 func TestListar(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
+	configuracion.GetDatabaseInstance()
+	_ = configuracion.RefreshPeliculaTable()
+	_, err := configuracion.SendVariousPeliculas()
+
 	r := gin.Default()
 	r.GET(urlPeliculas, contenedor.GetControladorPelicula().Listar)
 
@@ -246,11 +250,15 @@ func TestListar(t *testing.T) {
 		log.Fatalf("Cannot convert to json: %v\n", err)
 	}
 	assert.Equal(t, rr.Code, http.StatusOK)
-	assert.Equal(t, len(peliculas), 1)
+	assert.Equal(t, len(peliculas), 2)
 }
 
 func TestEliminar(t *testing.T) {
 	gin.SetMode(gin.TestMode)
+
+	configuracion.GetDatabaseInstance()
+	_ = configuracion.RefreshPeliculaTable()
+	pelicula, _ := configuracion.SendOnePelicula()
 
 	samples := []struct {
 		id         string
@@ -259,17 +267,11 @@ func TestEliminar(t *testing.T) {
 		errMessage string
 	}{
 		{
-			id:         strconv.Itoa(1),
+			id:         strconv.Itoa(int(pelicula.Id)),
 			statusCode: 200,
 			status:     "ok",
 			errMessage: "",
 		},
-		//{
-		//	id:         strconv.Itoa(1996),
-		//	statusCode: 404,
-		//	status:     "ok",
-		//	errMessage: "No existe la pelicula a eliminar con el id 1996",
-		//},
 	}
 
 	for _, v := range samples {

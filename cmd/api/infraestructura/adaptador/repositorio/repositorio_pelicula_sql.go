@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 )
 
 const (
@@ -33,7 +32,7 @@ func (repositorioPelicula *RepositorioPeliculaSql) Crear(pelicula *modelo.Pelicu
 	tx, err = repositorioPelicula.Db.Begin()
 	if err != nil {
 		errMsg := fmt.Sprintf("RepositorioSQL Crear -> Ocurrió un error al guardar la pelicula con nombre %s", pelicula.Nombre)
-		log.Println(errMsg, err)
+		//log.Println(errMsg, err)
 		return errors.New(errMsg)
 	}
 
@@ -45,7 +44,7 @@ func (repositorioPelicula *RepositorioPeliculaSql) Crear(pelicula *modelo.Pelicu
 		pelicula.Idioma,
 		pelicula.Lanzamiento)
 	if err != nil {
-		log.Println("RepositorioSQL Crear -> El tipo de parámetro no es correcto", err)
+		//log.Println("RepositorioSQL Crear -> El tipo de parámetro no es correcto", err)
 		return errors.New("RepositorioSQL Crear -> El tipo de parámetro no es correcto")
 	}
 
@@ -58,7 +57,7 @@ func (repositorioPelicula *RepositorioPeliculaSql) Obtener(id int64) (pelicula m
 	row := repositorioPelicula.Db.QueryRow(QUERY_OBTENER_PELICULA, id)
 	err = row.Scan(&pelicula.Id, &pelicula.Nombre, &pelicula.Director, &pelicula.Escritor, &pelicula.Pais, &pelicula.Idioma, &pelicula.Lanzamiento)
 	if err != nil {
-		log.Println("RepositorioSQL Obtener -> Error al ejecutar instancia SQL", err)
+		//log.Println("RepositorioSQL Obtener -> Error al ejecutar instancia SQL", err)
 		return modelo.Pelicula{}, errors.New("RepositorioSQL Obtener -> Error al ejecutar instancia SQL")
 	}
 	return pelicula, err
@@ -68,7 +67,7 @@ func (repositorioPelicula *RepositorioPeliculaSql) Obtener(id int64) (pelicula m
 func (repositorioPelicula *RepositorioPeliculaSql) Listar() ([]modelo.Pelicula, error) {
 	rows, err := repositorioPelicula.Db.Query(QUERY_LISTAR_PELICULAS)
 	if err != nil {
-		log.Println("RepositorioSQL Listar -> Error de sintaxis de consulta", err)
+		//log.Println("RepositorioSQL Listar -> Error de sintaxis de consulta", err)
 		return nil, errors.New("RepositorioSQL Listar -> Error de sintaxis de consulta")
 	}
 
@@ -86,14 +85,14 @@ func (repositorioPelicula *RepositorioPeliculaSql) Listar() ([]modelo.Pelicula, 
 			&pelicula.Idioma,
 			&pelicula.Lanzamiento,
 		); err != nil {
-			log.Println("RepositorioSQL Listar -> Error al escanear la información", err)
+			//log.Println("RepositorioSQL Listar -> Error al escanear la información", err)
 			return nil, errors.New("RepositorioSQL Listar -> error al escanear la información")
 		}
 		peliculas = append(peliculas, pelicula)
 	}
 
 	if len(peliculas) == 0 {
-		log.Println("RepositorioSQL Listar -> No retorna peliculas la consulta", err)
+		//log.Println("RepositorioSQL Listar -> No retorna peliculas la consulta", err)
 		return nil, errors.New("RepositorioSQL Listar -> No retorna peliculas la consulta")
 	}
 
@@ -111,13 +110,13 @@ func (repositorioPelicula *RepositorioPeliculaSql) Eliminar(id int64) (err error
 	tx, err = repositorioPelicula.Db.Begin()
 	if err != nil {
 		errMsg := fmt.Sprintf("RepositorioSQL Eliminar -> Ocurrió un error al eliminar la pelicula con id %v", id)
-		log.Println(errMsg, err)
+		//log.Println(errMsg, err)
 		return errors.New(errMsg)
 	}
 
 	_, err = repositorioPelicula.Db.Exec(QUERY_ELIMINAR_PELICULA, id)
 	if err != nil {
-		log.Println("RepositorioSQL Eliminar -> El tipo de parámetro no es correcto", err)
+		//log.Println("RepositorioSQL Eliminar -> El tipo de parámetro no es correcto", err)
 		return errors.New("RepositorioSQL Eliminar -> El tipo de parámetro no es correcto")
 	}
 
@@ -135,7 +134,7 @@ func (repositorioPelicula *RepositorioPeliculaSql) Actualizar(id int64, pelicula
 	tx, err = repositorioPelicula.Db.Begin()
 	if err != nil {
 		errMsg := fmt.Sprintf("RepositorioSQL Actualizar -> Ocurrió un error al actualizar la pelicula con id %v", id)
-		log.Println(errMsg, err)
+		//log.Println(errMsg, err)
 		return errors.New(errMsg)
 	}
 
@@ -148,7 +147,7 @@ func (repositorioPelicula *RepositorioPeliculaSql) Actualizar(id int64, pelicula
 		pelicula.Lanzamiento,
 		id)
 	if err != nil {
-		log.Println("RepositorioSQL Actualizar -> El tipo de parámetro no es correcto", err)
+		//log.Println("RepositorioSQL Actualizar -> El tipo de parámetro no es correcto", err)
 		return errors.New("RepositorioSQL Actualizar -> El tipo de parámetro no es correcto")
 	}
 
@@ -161,7 +160,7 @@ func (repositorioPelicula *RepositorioPeliculaSql) Existe(nombre string) (int64,
 	var id int64
 	err := row.Scan(&id)
 	if err != nil {
-		log.Println("RepositorioSQL Existe -> Error al ejecutar instancia SQL", err)
+		//log.Println("RepositorioSQL Existe -> Error al ejecutar instancia SQL", err)
 		return 0, false
 	}
 	if id > 0 {

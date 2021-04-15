@@ -2,7 +2,6 @@ package aplicacion
 
 import (
 	"ADN_Golang/cmd/api/dominio/servicio"
-	"log"
 )
 
 type AplicacionEliminarPelicula interface {
@@ -15,11 +14,5 @@ type EliminarPelicula struct {
 
 func (eliminarPelicula *EliminarPelicula) Ejecutar(id int64) error {
 
-	err := eliminarPelicula.ServicioEliminarPelicula.Eliminar(id)
-	if err != nil {
-		log.Println("Aplicacion eliminar -> Error", err)
-		return err
-	}
-
-	return err
+	return eliminarPelicula.ServicioEliminarPelicula.Eliminar(id)
 }
