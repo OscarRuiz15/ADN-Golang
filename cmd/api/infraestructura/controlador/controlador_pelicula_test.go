@@ -35,7 +35,7 @@ func TestCrear(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	configuracion.GetDatabaseInstance()
-	_ = configuracion.RefreshPeliculaTable()
+	configuracion.RefreshPeliculaTable()
 
 	samples := []struct {
 		inputJSON   string
@@ -107,7 +107,7 @@ func TestObtener(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	configuracion.GetDatabaseInstance()
-	_ = configuracion.RefreshPeliculaTable()
+	configuracion.RefreshPeliculaTable()
 	pelicula, _ := configuracion.SendOnePelicula()
 
 	samples := []struct {
@@ -168,7 +168,7 @@ func TestActualizar(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	configuracion.GetDatabaseInstance()
-	_ = configuracion.RefreshPeliculaTable()
+	configuracion.RefreshPeliculaTable()
 	pelicula, _ := configuracion.SendOnePelicula()
 
 	samples := []struct {
@@ -230,8 +230,8 @@ func TestListar(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	configuracion.GetDatabaseInstance()
-	_ = configuracion.RefreshPeliculaTable()
-	_, err := configuracion.SendVariousPeliculas()
+	configuracion.RefreshPeliculaTable()
+	configuracion.SendVariousPeliculas()
 
 	r := gin.Default()
 	r.GET(urlPeliculas, contenedor.GetControladorPelicula().Listar)
@@ -257,7 +257,7 @@ func TestEliminar(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	configuracion.GetDatabaseInstance()
-	_ = configuracion.RefreshPeliculaTable()
+	configuracion.RefreshPeliculaTable()
 	pelicula, _ := configuracion.SendOnePelicula()
 
 	samples := []struct {
